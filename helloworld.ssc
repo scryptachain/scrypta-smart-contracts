@@ -29,6 +29,14 @@ function public: ifMempool(mempool){
     })
 }
 
+
+function public: consensus(){
+    // THIS FUNCTION WILL BE CALLED TO CHECK THE CONSENSUS BETWEEN NODES
+    return new Promise(async response => {
+        response(100)
+    })
+}
+
 function public: updatestatus(){
     // WORKING WITH DB IN STATELESS MODE
     return new Promise(async response => {

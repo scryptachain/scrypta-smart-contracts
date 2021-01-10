@@ -26,3 +26,36 @@ function public: ifMempool(mempool){
         response(mempool)
     })
 }
+
+function public: name(){
+    return "MyToken"
+}
+
+function public: symbol(){
+    return "MTT"
+}
+
+function public: decimals(){
+    return 10
+}
+
+function public: totalSupply(){
+    return 100000000
+}
+
+function public: balanceOf(){
+    // TODO
+}
+
+function public: transfer(){
+    // TODO
+}
+
+// Admin Functions
+function admin: mint(){
+    // TODO
+}
+
+function admin: burn(){
+    // TODO
+}

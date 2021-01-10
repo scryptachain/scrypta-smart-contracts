@@ -1,12 +1,12 @@
 # Scrypta Smart Contracts
 
-Questi contratti sono degli esempi che possono essere utilizzati come base per capire come funziona la Scrypta VM.
+These contracts are examples that can be used as a basis for understanding how the Scrypta VM works.
 
-Per iniziare a sviluppare smart contracts per Scrypta è necessario installare 2 diversi componenti:
+To start developing smart contracts for Scrypta you need to install 2 different components:
 - ScryptaVM: https://github.com/scryptachain/scrypta-vm
 - IdaNodeJS: https://github.com/scryptachain/scrypta-idanodejs
 
-### Installare ScryptaVM
+### Install ScryptaVM
 
 ```
 git clone https://github.com/scryptachain/scrypta-vm
@@ -16,9 +16,9 @@ sudo npm install -g ./
 npm start
 ```
 
-### Installare IdanodeJS
+### Install IdanodeJS
 
-La cosa più semplice per installare l'IdaNode è usare Docker:
+The easiest thing to install IdaNode is to use Docker:
 
 ```
 git clone https://github.com/scryptachain/scrypta-idanodejs
@@ -26,38 +26,40 @@ cd scrypta-idanodejs
 bash docker/docker.sh
 ```
 
-Questo isntallerà l'IdaNode, non appena è tutto pronto potrai testare con il comando:
+This will install the IdaNode, as soon as everything is ready you can test with the command:
 
 ```
 curl http://localhost:3001/wallet/getinfo
 ```
 
-## Leggere un contratto
+## Read a contract
 
-Per testare un contratto è sufficiente usare un comando del tipo:
+To test a contract just use a command like:
 
 ```
 scrypta-contracts read -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc
 ```
 
-## Testare un contratto
+## Test a contract
 
-Per testare un contratto è sufficiente usare un comando del tipo:
+To test a contract, simply use a command like:
 
 ```
 scrypta-contracts test -f=helloworld -p='{"me": "alan"}' -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
 ```
 
-Come possiamo vedere i parametri possibili sono i seguenti:
-- f: la funzione che vogliamo far partire
-- p: i parametri che si vogliono inviare (è possibile inviare sia oggetti che stringhe)
-- m: il path del contratto
-- i: la chiave privata dell'identità che deve interagire con il contratto, se non viene inserito il sistema ne crea una in automatico
+As we can see the possible parameters are as follows:
+- f: the function we want to start
+- p: the parameters you want to send (you can send both objects and strings)
+- m: the path of the contract
+- i: the private key of the identity that must interact with the contract, if it is not inserted the system creates one automatically
 
-## Pubblicare un contratto
+## Publish a contract
 
-Per testare un contratto è sufficiente usare un comando del tipo:
+To test a contract is sufficient to use a command like:
 
 ```
 scrypta-contracts publish -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
 ```
+
+Translated with www.DeepL.com/Translator (free version)

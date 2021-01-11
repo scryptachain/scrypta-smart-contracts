@@ -53,6 +53,7 @@ As we can see the possible parameters are as follows:
 - p: the parameters you want to send (you can send both objects and strings)
 - m: the path of the contract
 - i: the private key of the identity that must interact with the contract, if it is not inserted the system creates one automatically
+- b: if you want to inject a block instead to try `eachMempool` or `eachBlock` functions
 
 ## Publish a contract
 
@@ -61,5 +62,3 @@ To test a contract is sufficient to use a command like:
 ```
 scrypta-contracts publish -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
 ```
-
-Translated with www.DeepL.com/Translator (free version)

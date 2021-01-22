@@ -9,11 +9,7 @@ To start developing smart contracts for Scrypta you need to install 2 different 
 ### Install ScryptaVM
 
 ```
-git clone https://github.com/scryptachain/scrypta-vm
-cd scrypta-vm
-npm install
-sudo npm install -g ./
-npm start
+sudo npm install @scrypta/vm
 ```
 
 ### Install IdanodeJS
@@ -32,12 +28,23 @@ This will install the IdaNode, as soon as everything is ready you can test with 
 curl http://localhost:3001/wallet/getinfo
 ```
 
+### Download sandbox code and run playground
+
+First thing is to clone this repository and install `npm` dependencies of the smart contracts, because the code will run in this folder so:
+
+```
+git clone https://github.com/scryptachain/scrypta-smart-contracts
+cd scrypta-smart-contracts
+npm install
+scrypta-contracts start &
+```
+
 ## Read a contract
 
 To test a contract just use a command like:
 
 ```
-scrypta-contracts read -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc
+scrypta-contracts read -m=helloworld.ssc
 ```
 
 ## Test a contract
@@ -45,7 +52,7 @@ scrypta-contracts read -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/h
 To test a contract, simply use a command like:
 
 ```
-scrypta-contracts test -f=helloworld -p='{"me": "alan"}' -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
+scrypta-contracts test -f=helloworld -p='{"me": "alan"}' -m=helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
 ```
 
 As we can see the possible parameters are as follows:
@@ -60,5 +67,5 @@ As we can see the possible parameters are as follows:
 To test a contract is sufficient to use a command like:
 
 ```
-scrypta-contracts publish -m=/home/turinglabs/GIT/SCRYPTA/scrypta-smart-contracts/helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
+scrypta-contracts publish -m=helloworld.ssc -i=SsmVKf8eb8ME3Bhrs3GPELuLjoKYcvrwkigDBocAi7pbiCdprve3
 ```

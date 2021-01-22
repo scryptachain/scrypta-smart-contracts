@@ -1,0 +1,204 @@
+/**
+ * NAME: ERC20
+ * DESCRIPTION: ERC-20 implementation
+ * AUTHOR: turinglabs
+ * VERSION: 1.0.0
+ * IMMUTABLE: false
+ */
+
+// DEFINING COMPILER VERSION
+/* Scrypta v0.0.2 */
+
+// ADDING EXTERNAL DEPENDENCIES
+const { sum, round, subtract } = require('mathjs')
+
+async function constructor() {}
+
+
+function private: processdata(data){
+    return new Promise(async response => {
+        if(Object.keys(data).length > 0){
+            let keys = Object.keys(data)
+            for(let k in Object.keys(data)){
+                console.log('ANALYZING DATA FOR ' + keys[k])
+                for(let j in data[keys[k]]){
+                    let written = data[keys[k]][j]
+                    if(written.protocol === 'src20://'){
+                        let data = written.data.split(':')
+                        let action = data[0]
+                        if(action === 'transfer'){
+                            /*
+                            * EXPECTED TRANSFER TRANSACTION IS:
+                            * src20://transfer:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:10000
+                            */
+                            let fromUser = await db.read({ "address": request.address })
+                            if(fromUser.length > 0){
+                                let balance = await balanceOf()
+                                let to = data[1]
+                                let amount = data[2]
+                                if(balance >= amount){
+                                    let timestamp = new Date().getTime()
+                                    let toUser = await db.read({ "address": to })
+                                    if(toUser.length === 0){
+                                        await db.insert({
+                                            "address": to,
+                                            "balance": amount,
+                                            "last_update": timestamp
+                                        })
+                                    }else{
+                                        let updated = sum(toUser.balance, amount)
+                                        await db.update({ "address": to },
+                                            { $set: {
+                                                "balance": updated,
+                                                "last_update": timestamp
+                                            } 
+                                        })
+                                    }
+                                } else {
+                                    console.log('NOT ENOUGH BALANCE')
+                                }
+                            } else {
+                                console.log('USER NOT FOUND')
+                            }
+                        }else if(action === 'mint'){
+
+                            /*
+                            * EXPECTED MINT TRANSACTION IS:
+                            * src20://mint:10000
+                            */
+
+                            let amount = data[1]
+                            let owner = owner()
+                            let max = totalSupply()
+                            if(request.address === owner){
+                                let timestamp = new Date().getTime()
+                                let ownerUser = await db.read({ "address": owner })
+                                if(ownerUser.length === 0){
+                                    let validated = true
+
+                                    /*
+                                    * Check if amount is less than the max or is -1 which means it's unlimited
+                                    */
+                                    if(max !== -1 && amount > max){
+                                        validated = false
+                                    }
+
+                                    if(validated){
+                                        await db.insert({
+                                            "address": owner,
+                                            "balance": amount,
+                                            "last_update": timestamp
+                                        })
+                                    }else{
+                                        console.log("CAN'T MINT MORE THAN MAX SUPPLY")
+                                    }
+                                }else{
+                                    let shares = await db.read()
+                                    let validated = true
+                                    let totalBalances = 0
+                                    for(let k in shares){
+                                        totalBalances = sum(totalBalances, shares[k].balance)
+                                    }
+
+                                    let expected = sum(totalBalances, amount)
+                                    if(max !== -1 && expected > max){
+                                        validated = false
+                                    }else{
+                                        console.log("CAN'T MINT MORE THAN MAX SUPPLY")
+                                    }
+
+                                    if(validated){
+                                        let updated = sum(ownerUser.balance, amount)
+                                        await db.update({ "address": owner },
+                                            { $set: {
+                                                "balance": updated,
+                                                "last_update": timestamp
+                                            } 
+                                        })
+                                    }
+                                }
+                            }
+                        }else if(action === 'burn'){
+                            /*
+                            * EXPECTED BURN TRANSACTION IS:
+                            * src20://burn:10000
+                            */
+                            
+                            let amount = data[1]
+                            let fromUser = await db.read({ "address": request.address })
+                            if(fromUser.length > 0){
+                                let balance = await balanceOf()
+                                if(balance >= amount){
+                                    let timestamp = new Date().getTime()
+                                    let toUser = await db.read({ "address": to })
+                                    if(toUser.length > 0){
+                                        let updated = subtract(toUser.balance, amount)
+                                        await db.update({ "address": to },
+                                            { $set: {
+                                                "balance": updated,
+                                                "last_update": timestamp
+                                            } 
+                                        })
+                                    } else {
+                                        console.log('USER NOT FOUND')
+                                    }
+                                } else {
+                                    console.log('NOT ENOUGH BALANCE')
+                                }
+                            }else{
+                                console.log('USER NOT FOUND')
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
+
+async function public: eachBlock(block){
+    return await processdata(block)
+}
+
+async function public: ifMempool(mempool){
+    return await processdata(mempool)
+}
+
+function public: consensus(){
+    // THIS FUNCTION WILL BE CALLED TO CHECK THE CONSENSUS BETWEEN NODES
+}
+
+function public: name(){
+    return "MyToken"
+}
+
+function public: symbol(){
+    return "MTT"
+}
+
+function public: owner(){
+    return "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c"
+}
+
+function public: decimals(){
+    return 10
+}
+
+function public: totalSupply(){
+    return 100000000
+}
+
+function public: balanceOf(){
+    return new Promise(async response => {
+        if(request.address !== undefined){
+            let balance = await db.read({"address": request.address})
+            if(balance.length > 0){
+                response(balance.balance)
+            }else{
+                response(0)
+            }
+        }else{
+            response(0)
+        }
+    })
+}

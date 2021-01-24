@@ -1,4 +1,4 @@
-# SRC-20 example contracts
+# ERC-20 like example contract
 
 This is an example on how Scrypta can be used to create an ERC-20 like contract.
 

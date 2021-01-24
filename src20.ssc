@@ -20,7 +20,6 @@ function private: processdata(data){
         if(Object.keys(data).length > 0){
             let keys = Object.keys(data)
             for(let k in Object.keys(data)){
-
                 console.log('ANALYZING DATA FOR ' + keys[k])
                 let address = keys[k]
 
@@ -99,15 +98,16 @@ function public: balanceOf(){
         if(request.address !== undefined || (request.message.params !== undefined && request.message.params.address !== undefined)){
             if(request.message.params.address !== undefined){
                 let address = request.message.params.address
+                console.log('REQUESTING BALANCE FOR ' + address)
                 let balance = await db.read({"address": address})
-                if(balance.length > 0){
+                if(Object.keys(balance).length > 0 && balance.balance !== undefined){
                     response(balance.balance)
                 }else{
                     response(0)
                 }
             }else{
                 let balance = await db.read({"address": request.address})
-                if(balance.length > 0){
+                if(Object.keys(balance).length > 0 && balance.balance !== undefined){
                     response(balance.balance)
                 }else{
                     response(0)
@@ -133,29 +133,26 @@ function private: transfer(data, address){
 
         if(to !== undefined && amount !== undefined && parseFloat(amount) > 0){
             let fromUser = await db.read({ "address": address })
-            if(fromUser.length > 0){
+            if(Object.keys(fromUser).length > 0 && fromUser.balance !== undefined){
                 let fromUpdatedBalance = subtract(balance, amount)
                 if(balance >= amount){
                     let toUser = await db.read({ "address": to })
-                    if(toUser.length === 0){
+                    if(Object.keys(toUser).length === 0){
                         await db.insert({
                             "address": to,
-                            "balance": amount,
-                            "last_update": block.height
+                            "balance": amount
                         })
                     }else{
                         let toUpdatedBalance = sum(toUser.balance, amount)
                         await db.update({ "address": to },
                             { $set: {
-                                "balance": toUpdatedBalance,
-                                "last_update": block.height
+                                "balance": toUpdatedBalance
                             } 
                         })
                     }
                     await db.update({ "address": address },
                         { $set: {
-                            "balance": fromUpdatedBalance,
-                            "last_update": block.height
+                            "balance": fromUpdatedBalance
                         } 
                     })
                     response(true)
@@ -183,11 +180,11 @@ function private: mint(data, address){
         */
 
         let amount = data[1]
-        let owner = owner()
+        let ownerAddress = owner()
 
-        if(amount !== undefined && address === owner && parseFloat(amount) > 0){
+        if(amount !== undefined && address === ownerAddress && parseFloat(amount) > 0){
             let max = totalSupply()
-            let ownerUser = await db.read({ "address": owner })
+            let ownerUser = await db.read({ "address": ownerAddress })
             if(ownerUser.length === 0){
                 let validated = true
 
@@ -200,10 +197,10 @@ function private: mint(data, address){
 
                 if(validated){
                     await db.insert({
-                        "address": owner,
-                        "balance": amount,
-                        "last_update": block.height
+                        "address": ownerAddress,
+                        "balance": amount
                     })
+                    console.log('OWNER ADDRESS CREATED')
                     response(true)
                 }else{
                     console.log("CAN'T MINT MORE THAN MAX SUPPLY")
@@ -233,12 +230,12 @@ function private: mint(data, address){
                 // IF VALIDATED UPDATE OWNER BALANCE
                 if(validated){
                     let updated = sum(ownerUser.balance, amount)
-                    await db.update({ "address": owner },
+                    await db.update({ "address": ownerAddress },
                         { $set: {
-                            "balance": updated,
-                            "last_update": block.height
+                            "balance": updated
                         } 
                     })
+                    console.log('OWNER ADDRESS UPDATED TO ' + updated)
                     response(true)
                 }else{
                     response(false)
@@ -262,14 +259,13 @@ function private: burn(data, address){
 
         if(amount !== undefined && parseFloat(amount) > 0){
             let fromUser = await db.read({ "address": address })
-            if(fromUser.length > 0){
+            if(Object.keys(fromUser).length > 0){
                 let balance = await balanceOf()
                 if(balance >= amount){
                     let updated = subtract(fromUser.balance, amount)
                     await db.update({ "address": to },
                         { $set: {
-                            "balance": updated,
-                            "last_update": block.height
+                            "balance": updated
                         } 
                     })
                     response(true)

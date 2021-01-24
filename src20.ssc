@@ -65,6 +65,7 @@ function public: consensus(){
     // THIS FUNCTION WILL BE CALLED TO CHECK THE CONSENSUS BETWEEN NODES
     return new Promise(async response => {
         let state = await db.read()
+        state.sort((a, b) => a.address.localeCompare(b.address));
         let hash = await scrypta.hash(state)
         response({
             state: state,
@@ -127,34 +128,43 @@ function private: transfer(data, address){
         * src20://transfer:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:10000
         */
         
-        let balance = await balanceOf()
         let to = data[1]
         let amount = data[2]
+        let tokenDecimals = decimals()
 
         if(to !== undefined && amount !== undefined && parseFloat(amount) > 0){
+            amount = round(amount, tokenDecimals)
             let fromUser = await db.read({ "address": address })
             if(Object.keys(fromUser).length > 0 && fromUser.balance !== undefined){
-                let fromUpdatedBalance = subtract(balance, amount)
-                if(balance >= amount){
+                let fromUpdatedBalance = subtract(fromUser.balance , amount)
+                fromUpdatedBalance = round(fromUpdatedBalance, tokenDecimals)
+
+                if(fromUser.balance >= amount){
                     let toUser = await db.read({ "address": to })
                     if(Object.keys(toUser).length === 0){
                         await db.insert({
                             "address": to,
                             "balance": amount
                         })
+                        console.log('TO BALANCE IS ' + amount)
                     }else{
                         let toUpdatedBalance = sum(toUser.balance, amount)
+                        toUpdatedBalance = round(toUpdatedBalance, tokenDecimals)
                         await db.update({ "address": to },
                             { $set: {
                                 "balance": toUpdatedBalance
                             } 
                         })
+                        console.log('TO BALANCE IS ' + toUpdatedBalance)
                     }
+
                     await db.update({ "address": address },
                         { $set: {
                             "balance": fromUpdatedBalance
                         } 
                     })
+
+                    console.log('FROM BALANCE IS ' + fromUpdatedBalance)
                     response(true)
                 } else {
                     console.log('NOT ENOUGH BALANCE')
@@ -181,13 +191,15 @@ function private: mint(data, address){
 
         let amount = data[1]
         let ownerAddress = owner()
+        let tokenDecimals = decimals()
 
         if(amount !== undefined && address === ownerAddress && parseFloat(amount) > 0){
             let max = totalSupply()
             let ownerUser = await db.read({ "address": ownerAddress })
             if(ownerUser.length === 0){
                 let validated = true
-
+                amount = round(amount, tokenDecimals)
+            
                 /*
                 * Check if amount is less than the max or is -1 which means it's unlimited
                 */
@@ -211,25 +223,31 @@ function private: mint(data, address){
 
                 // CHECK IF SUPPLY IS OPEN OR CLOSED
                 if(max !== -1){
-
+                    console.log('SUPPLY IS CLOSED, NEED TO CHECK TOTAL BALANCES')
                     // IF SUPPLY IS CLOSED CHECK IF TOTAL SUPPLY IS REACHED OR NOT
+                    let expected = 0
                     let shares = await db.read()
-                    let totalBalances = 0
-                    for(let k in shares){
-                        totalBalances = sum(totalBalances, shares[k].balance)
+                    if(shares.balance !== undefined){
+                        expected = sum(shares.balance, amount)
+                    }else{
+                        let totalBalances = 0
+                        for(let k in shares){
+                            totalBalances = sum(totalBalances, shares[k].balance)
+                        }
+                        expected = sum(totalBalances, amount)
                     }
-
-                    let expected = sum(totalBalances, amount)
+                    expected = round(expected, tokenDecimals)
                     if(expected > max){
                         validated = false
-                    }else{
                         console.log("CAN'T MINT MORE THAN MAX SUPPLY")
                     }
                 }
 
                 // IF VALIDATED UPDATE OWNER BALANCE
                 if(validated){
+                    console.log('NEW SUPPLY VALIDATED, UPDATING USER BALANCE')
                     let updated = sum(ownerUser.balance, amount)
+                    updated = round(updated, tokenDecimals)
                     await db.update({ "address": ownerAddress },
                         { $set: {
                             "balance": updated
@@ -256,19 +274,22 @@ function private: burn(data, address){
         */
         
         let amount = data[1]
+        let tokenDecimals = decimals()
 
         if(amount !== undefined && parseFloat(amount) > 0){
             let fromUser = await db.read({ "address": address })
             if(Object.keys(fromUser).length > 0){
-                let balance = await balanceOf()
+                let balance = fromUser.balance
                 if(balance >= amount){
+                    console.log('BURNING VALIDATED')
                     let updated = subtract(fromUser.balance, amount)
-                    await db.update({ "address": to },
+                    updated = round(updated, tokenDecimals)
+                    await db.update({ "address": address },
                         { $set: {
                             "balance": updated
                         } 
                     })
-                    response(true)
+                    response(updated)
                 } else {
                     console.log('NOT ENOUGH BALANCE')
                     response(false)

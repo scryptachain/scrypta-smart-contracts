@@ -39,16 +39,27 @@ function private: processdata(data){
                     }
                 }
             }
+            response(true)
+        }else{
+            response(false)
         }
     })
 }
 
 async function public: eachBlock(block){
-    return await processdata(block)
+    if(block['data_written'] !== undefined){
+        return await processdata(block['data_written'])
+    }else{
+        return false
+    }
 }
 
 async function public: ifMempool(mempool){
-    return await processdata(mempool)
+    if(mempool['data_written'] !== undefined){
+        return await processdata(mempool['data_written'])
+    }else{
+        return false
+    }
 }
 
 function public: consensus(){

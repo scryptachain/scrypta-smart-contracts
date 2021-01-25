@@ -57,19 +57,19 @@ However you can test them running eachBlock transaction with thest function.
 
 This will mint new tokens:
 ```
-scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "mint:10000"}]}}'
+scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "mint:Lhk8L7XJmxj85yBY46jJ6XNkBhj1J4wn8i:10000"}]}}'
 ```
 
 ### burn
 
 This will mint new tokens:
 ```
-scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "burn:10000"}]}}'
+scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "burn:Lhk8L7XJmxj85yBY46jJ6XNkBhj1J4wn8i:10000"}]}}'
 ```
 
 ### transfer
 
 This will transfer tokens between accounts:
 ```
-scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "transfer:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:19.12344"}]}}'
+scrypta-contracts test -m=src20.ssc -f=eachBlock -p='{"data_written": { "LSJq6a6AMigCiRHGrby4TuHeGirJw2PL5c": [{"protocol":"src20://", "data": "transfer:Lhk8L7XJmxj85yBY46jJ6XNkBhj1J4wn8i:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:19.12344"}]}}'
 ```

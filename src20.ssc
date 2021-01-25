@@ -14,7 +14,6 @@ const { sum, round, subtract } = require('mathjs')
 
 async function constructor() {}
 
-
 function private: processdata(data){
     return new Promise(async response => {
         if(Object.keys(data).length > 0){
@@ -28,12 +27,15 @@ function private: processdata(data){
                     if(written.protocol === 'src20://'){
                         let data = written.data.split(':')
                         let action = data[0]
-                        if(action === 'transfer'){
-                            await transfer(data, address)
-                        }else if(action === 'mint'){
-                            await mint(data, address)
-                        }else if(action === 'burn'){
-                            await burn(data, address)
+                        let requestedtoken = data[1]
+                        if(requestedtoken === contract){
+                            if(action === 'transfer'){
+                                await transfer(data, address)
+                            }else if(action === 'mint'){
+                                await mint(data, address)
+                            }else if(action === 'burn'){
+                                await burn(data, address)
+                            }
                         }
                     }
                 }
@@ -125,11 +127,11 @@ function private: transfer(data, address){
         
         /*
         * EXPECTED TRANSFER TRANSACTION IS:
-        * src20://transfer:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:10000
+        * src20://transfer:TOKENADDRESS:Li9BgCWhQrv8LhKD3U5HS47oencDrTDAZb:10000
         */
         
-        let to = data[1]
-        let amount = data[2]
+        let to = data[2]
+        let amount = data[3]
         let tokenDecimals = decimals()
 
         if(to !== undefined && amount !== undefined && parseFloat(amount) > 0){
@@ -186,10 +188,10 @@ function private: mint(data, address){
 
         /*
         * EXPECTED MINT TRANSACTION IS:
-        * src20://mint:10000
+        * src20://mint:TOKENADDRESS:10000
         */
 
-        let amount = data[1]
+        let amount = data[2]
         let ownerAddress = owner()
         let tokenDecimals = decimals()
 
@@ -270,10 +272,10 @@ function private: burn(data, address){
     return new Promise(async response => {
         /*
         * EXPECTED BURN TRANSACTION IS:
-        * src20://burn:10000
+        * src20://burn:TOKENADDRESS:10000
         */
         
-        let amount = data[1]
+        let amount = data[2]
         let tokenDecimals = decimals()
 
         if(amount !== undefined && parseFloat(amount) > 0){

@@ -12,7 +12,7 @@
 const time = new Date()
 
 async function constructor() {
-    
+
 }
 
 function public: eachBlock(block){
@@ -46,7 +46,7 @@ function public: updatestatus(){
             await db.insert({ "address": request.address, score: 0 })
             read = await db.read({"address": request.address})
         }
-    
+
         let increment = read.score + 1
         await db.update({"address": request.address }, { $set: { score: increment } })
         read = await db.read({"address": request.address})
@@ -60,7 +60,7 @@ function private: inner(){
 
 function public: helloworld(who) {
     return new Promise(async response => {
-        if (who !== undefined) {
+        if (who !== undefined && who.me !== undefined) {
             response('Hello ' + who['me'] + '! Your address is ' + request.address + '. Now are ' + time + '!')
         } else {
             response('Hello who?')
